@@ -1,13 +1,44 @@
-name: CI
+name: Pipeline
+run-name: ${{ github.ref_name }} por ${{ github.actor }}
 
 on:
   push:
     branches:
       - main
+  pull_request:
+
+env:
+  STAGE: workflow
 
 jobs:
-  build:
+  niveles:
+    runs-on: ubuntu-latest
+    env:
+      STAGE: job
+    steps:
+      - name: Imprime variable del job
+        run: echo "$STAGE"
+      - name: Imprime variable del step
+        env:
+          STAGE: step
+        run: echo "$STAGE"
+
+  origen:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: go run .
+      - name: Imprime variable del workflow
+        run: echo "$STAGE"
+
+  check-secret:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verifica que el secreto existe
+        env:
+          EL_SECRETO: ${{ secrets.PROD_TOKEN }}
+        run: |
+          if [ -z "$EL_SECRETO" ]; then
+            echo "Error: El secreto está vacío o no existe"
+            exit 1
+          else
+            echo "secreto presente"
+          fi
